@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Grid from '../gameObjects/Grid';
 import Shape from '../gameObjects/Shape';
+import { rotateMatrixCW, flipMatrixHorizontal } from '../utils/matrixUtils';
 
 export default class MainScene extends Phaser.Scene {
     private mainGridObject!: Grid;
@@ -84,6 +85,11 @@ export default class MainScene extends Phaser.Scene {
         this.activeShape.on('transformed', (shape: Shape) => {
             this.updateDropPreview(shape);
         });
+
+        // After creating the shape, check for a game over condition
+        if (!this.canShapeBePlacedAnywhere(this.activeShape)) {
+            this.triggerGameOver();
+        }
     }
 
     private onWake(): void {
@@ -115,11 +121,11 @@ export default class MainScene extends Phaser.Scene {
     private createControlButtons(): void {
         // Position buttons below the shape's starting area
         const buttonY = this.activeShape.startY + 300; 
-        const buttonStyle = { fontSize: '32px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 10, y: 5 } };
+        const buttonStyle = { fontSize: '42px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 22, y: 8 } };
         const centerX = this.cameras.main.width / 2;
 
         // Rotate CW Button
-        const rotateCWBtn = this.add.text(centerX - 150, buttonY, '↻', buttonStyle)
+        const rotateCWBtn = this.add.text(centerX - 80, buttonY, '↷', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
@@ -129,7 +135,7 @@ export default class MainScene extends Phaser.Scene {
             .on('pointerup', () => rotateCWBtn.setScale(1));
 
         // Rotate CCW Button
-        const rotateCCWBtn = this.add.text(centerX + 150, buttonY, '↺', buttonStyle)
+        const rotateCCWBtn = this.add.text(centerX + 80, buttonY, '↶', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
@@ -228,7 +234,7 @@ export default class MainScene extends Phaser.Scene {
             this.clearLinesAndColumns(linesToClear, columnsToClear);
         } else {
             // End the phase after a short delay user to study
-            this.time.delayedCall(2000, this.endPhase, [], this);
+            this.time.delayedCall(500, this.endPhase, [], this);
         }
     }
 
@@ -265,12 +271,97 @@ export default class MainScene extends Phaser.Scene {
         });
 
         // End the phase after a short delay for the visual effect
-        this.time.delayedCall(2000, this.endPhase, [], this);
+        this.time.delayedCall(500, this.endPhase, [], this);
     }
 
     private endPhase(): void {
         console.log("Phase complete. Returning to BuildScene.");
         // Restart the build scene to complete the loop
         this.scene.switch('BuildScene');
+    }
+
+    // --- Game Over Logic ---
+
+    private triggerGameOver(): void {
+        console.log("GAME OVER");
+        if (this.activeShape) {
+            this.activeShape.disableInteractive();
+        }
+
+        // Dim the screen
+        this.add.rectangle(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            this.cameras.main.width,
+            this.cameras.main.height,
+            0x000000,
+            0.7
+        ).setDepth(100);
+
+        // Game Over Text
+        this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 100, 'GAME OVER', {
+            fontSize: '128px', color: '#ff4444',
+            fontStyle: 'bold',
+            stroke: '#ffffff',
+            strokeThickness: 8
+        }).setOrigin(0.5).setDepth(101);
+
+        // Restart Button
+        const restartBtn = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 100, 'Restart', {
+            fontSize: '64px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setDepth(101).setInteractive({ useHandCursor: true });
+
+        restartBtn.on('pointerdown', () => {
+            // Restart the BuildScene to ensure it's in a fresh state.
+            this.scene.get('BuildScene').scene.restart();
+            // Then, switch to it. This will shut down the current MainScene, hiding it.
+            this.scene.switch('BuildScene');
+        });
+    }
+
+    private canShapeBePlacedAnywhere(shape: Shape): boolean {
+        let currentMatrix = shape.matrix;
+
+        // Check all 4 rotations
+        for (let i = 0; i < 4; i++) {
+            // Check the normal and flipped versions of the current rotation
+            if (this.canMatrixBePlaced(currentMatrix) || this.canMatrixBePlaced(flipMatrixHorizontal(currentMatrix))) {
+                return true; // Found a valid placement
+            }
+            currentMatrix = rotateMatrixCW(currentMatrix);
+        }
+
+        return false; // No valid placements found for any orientation
+    }
+
+    private canMatrixBePlaced(matrix: number[][]): boolean {
+        // Iterate through every cell of the grid as a potential top-left anchor for the matrix
+        for (let r = -matrix.length + 1; r < this.GRID_HEIGHT; r++) {
+            for (let c = -matrix[0].length + 1; c < this.GRID_WIDTH; c++) {
+                if (this.canPlaceMatrixAt(matrix, c, r)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private canPlaceMatrixAt(matrix: number[][], gridCol: number, gridRow: number): boolean {
+        for (let r = 0; r < matrix.length; r++) {
+            for (let c = 0; c < matrix[0].length; c++) {
+                if (matrix[r][c] === 1) {
+                    const targetRow = gridRow + r;
+                    const targetCol = gridCol + c;
+
+                    // Check if the block is out of bounds OR if the cell is occupied
+                    if (targetRow < 0 || targetRow >= this.GRID_HEIGHT ||
+                        targetCol < 0 || targetCol >= this.GRID_WIDTH ||
+                        this.mainGridMatrix[targetRow][targetCol] === 1) {
+                        return false; // This one block is invalid, so this position is invalid
+                    }
+                }
+            }
+        }
+        return true; // All blocks in the matrix fit at this position
     }
 }

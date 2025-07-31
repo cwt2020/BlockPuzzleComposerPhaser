@@ -1,8 +1,5 @@
 import Phaser from 'phaser';
-// Note: Ensure you have a 'utils/matrixUtils' file with these functions
-const rotateMatrixCW = (matrix: any[][]) => { const N = matrix.length; const M = matrix[0].length; const result = Array.from({ length: M }, () => Array(N).fill(0)); for (let r = 0; r < N; r++) { for (let c = 0; c < M; c++) { result[c][N - 1 - r] = matrix[r][c]; } } return result; };
-const rotateMatrixCCW = (matrix: any[][]) => { const N = matrix.length; const M = matrix[0].length; const result = Array.from({ length: M }, () => Array(N).fill(0)); for (let r = 0; r < N; r++) { for (let c = 0; c < M; c++) { result[M - 1 - c][r] = matrix[r][c]; } } return result; };
-const flipMatrixHorizontal = (matrix: any[][]) => { return matrix.map(row => row.slice().reverse()); };
+import { rotateMatrixCW, rotateMatrixCCW, flipMatrixHorizontal } from '../utils/matrixUtils';
 
 
 interface IShapeConfig {

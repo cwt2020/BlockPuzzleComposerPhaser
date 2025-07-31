@@ -105,11 +105,11 @@ export default class BuildScene extends Phaser.Scene {
         const buttonStyle = { fontSize: '48px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 22, y: 8 }, align: 'center' };
 
         // Rotate CCW Button (↶)
-        this.add.text(centerX - buttonHorizontalSpacing, y, '↺', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCCW());
+        this.add.text(centerX + buttonHorizontalSpacing, y, '↶', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCCW());
         // Rotate CW Button (↷)
-        this.add.text(centerX, y, '↻', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCW());
+        this.add.text(centerX - buttonHorizontalSpacing, y, '↷', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCW());
         // Flip Button (⇔)
-        this.add.text(centerX + buttonHorizontalSpacing, y, '↔', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.flip());
+        this.add.text(centerX , y, '↔', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.flip());
     }
 
     private handleShapeDrop(shape: Shape): void {
