@@ -67,6 +67,22 @@ Now, open your web browser and navigate to the local server address provided (us
 
 ---
 
+## 📦 Building and Previewing
+
+To create a production-ready build of the game in the `dist` folder:
+
+```bash
+npm run build
+```
+
+To test the production build locally, you can run a preview server:
+
+```bash
+npm run preview
+```
+This will serve the `dist` folder on a local web server, allowing you to test the game exactly as it would behave when deployed.
+---
+
 ## 🌐 Deployment
 
 This project is configured for easy deployment to GitHub Pages.
