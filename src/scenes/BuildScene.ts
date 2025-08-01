@@ -5,7 +5,6 @@ import ShapeFactory from '../managers/ShapeFactory';
 import { trimMatrix } from '../utils/matrixUtils'; 
 
 export default class BuildScene extends Phaser.Scene {
-    private buildGridObject!: Grid;
     private buildGridMatrix!: number[][]; // Logical grid
     private sourceShapes: Shape[] = [];
     private shapeFactory!: ShapeFactory;
@@ -49,7 +48,7 @@ export default class BuildScene extends Phaser.Scene {
     private initBuildGrid(): void {
         this.gridX = Math.floor((this.cameras.main.width - (this.GRID_WIDTH * this.CELL_SIZE)) / 2);
         this.gridY = 200;
-        this.buildGridObject = new Grid({
+        new Grid({
             scene: this, x: this.gridX, y: this.gridY,
             width: this.GRID_WIDTH, height: this.GRID_HEIGHT, cellSize: this.CELL_SIZE
         });

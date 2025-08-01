@@ -102,7 +102,7 @@ export default class Shape extends Phaser.GameObjects.Container {
         const hitArea = new Phaser.Geom.Rectangle(0, 0, 0, 0);
         this.setInteractive({
             hitArea: hitArea,
-            hitAreaCallback: (hitArea: Phaser.Geom.Rectangle, x: number, y: number, gameObject: Phaser.GameObjects.GameObject): boolean => {
+            hitAreaCallback: (_hitArea: Phaser.Geom.Rectangle, x: number, y: number, gameObject: Phaser.GameObjects.GameObject): boolean => {
                 const shape = gameObject as Shape;
                 // When a `hitArea` rectangle is provided, the `x` and `y` coordinates passed to this
                 // callback are relative to the top-left of that `hitArea` rectangle.
@@ -123,7 +123,7 @@ export default class Shape extends Phaser.GameObjects.Container {
             this.scene.tweens.add({ targets: this, scale: 1.1, ease: 'Power1', duration: 150 });
         });
 
-        this.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+        this.on('drag', (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
             // For Containers, we must manually update the position during a drag.
             this.x = dragX;
             this.y = dragY;
@@ -132,7 +132,7 @@ export default class Shape extends Phaser.GameObjects.Container {
             this.emit('dragging', this);
         });
 
-        this.on('dragend', (pointer: Phaser.Input.Pointer) => {
+        this.on('dragend', (_pointer: Phaser.Input.Pointer) => {
             this.scene.tweens.add({
                 targets: this, scale: 1.0, ease: 'Power1', duration: 150,
                 // Emit 'dropped' with just the shape, as scenes expect.
@@ -216,13 +216,4 @@ export default class Shape extends Phaser.GameObjects.Container {
         this.y = (gridY + row * gridCellSize) + this.height / 2;
     }
     
-    // --- Debugging ---
-    private drawDebugHitArea(): void {
-        this.debugGraphics.clear();
-        if (this.input && this.input.hitArea) {
-            this.debugGraphics.lineStyle(4, 0xff00ff, 0.8);
-            const hitArea = this.input.hitArea as Phaser.Geom.Rectangle;
-            this.debugGraphics.strokeRect(hitArea.x, hitArea.y, hitArea.width, hitArea.height);
-        }
-    }
 }

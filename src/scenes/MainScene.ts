@@ -4,9 +4,8 @@ import Shape from '../gameObjects/Shape';
 import { rotateMatrixCW, flipMatrixHorizontal } from '../utils/matrixUtils';
 
 export default class MainScene extends Phaser.Scene {
-    private mainGridObject!: Grid;
     private mainGridMatrix!: number[][];
-    private placedBlocksMatrix: (Phaser.GameObjects.Image | null)[][] = [];
+    private placedBlocksMatrix: (Phaser.GameObjects.Rectangle | null)[][] = [];
     private previewGraphics!: Phaser.GameObjects.Graphics;
     private activeShape!: Shape;
     private superShapeMatrix!: number[][];
@@ -45,7 +44,8 @@ export default class MainScene extends Phaser.Scene {
         this.gridX = (this.cameras.main.width - (this.GRID_WIDTH * this.CELL_SIZE)) / 2;
         this.gridY = 120;
 
-        this.mainGridObject = new Grid({
+        // The Grid object is purely visual. We create it and it adds itself to the scene.
+        new Grid({
             scene: this, x: this.gridX, y: this.gridY,
             width: this.GRID_WIDTH, height: this.GRID_HEIGHT, cellSize: this.CELL_SIZE
         });
@@ -125,7 +125,7 @@ export default class MainScene extends Phaser.Scene {
         const centerX = this.cameras.main.width / 2;
 
         // Rotate CW Button
-        const rotateCWBtn = this.add.text(centerX - 80, buttonY, '↷', buttonStyle)
+        const rotateCWBtn = this.add.text(centerX - 180, buttonY, '↷', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
@@ -134,8 +134,18 @@ export default class MainScene extends Phaser.Scene {
             })
             .on('pointerup', () => rotateCWBtn.setScale(1));
 
+        // Flip Button
+        const flipBtn = this.add.text(centerX, buttonY, '↔', buttonStyle)
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                this.game.events.emit('flipClicked');
+                flipBtn.setScale(0.95);
+            })
+            .on('pointerup', () => flipBtn.setScale(1));
+
         // Rotate CCW Button
-        const rotateCCWBtn = this.add.text(centerX + 80, buttonY, '↶', buttonStyle)
+        const rotateCCWBtn = this.add.text(centerX + 180, buttonY, '↶', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
@@ -143,13 +153,6 @@ export default class MainScene extends Phaser.Scene {
                 rotateCCWBtn.setScale(0.95);
             })
             .on('pointerup', () => rotateCCWBtn.setScale(1));
-
-        // Flip Button
-        const flipBtn = this.add.text(centerX, buttonY, '↔', buttonStyle)
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true })
-            .on('pointerdown', () => { this.game.events.emit('flipClicked'); flipBtn.setScale(0.95); })
-            .on('pointerup', () => flipBtn.setScale(1));
     }
 
     private handleShapeDrop(shape: Shape): void {
@@ -166,14 +169,16 @@ export default class MainScene extends Phaser.Scene {
             occupiedCells.forEach(cell => {
                 this.mainGridMatrix[cell.y][cell.x] = 1;
 
-                const block = this.add.image(
-                    this.gridX + cell.x * this.CELL_SIZE,
-                    this.gridY + cell.y * this.CELL_SIZE,
-                    'block'
-                )
-                .setOrigin(0, 0)
-                .setDisplaySize(this.CELL_SIZE, this.CELL_SIZE)
-                .setTint(shape.color); // Use the new color getter
+                const block = this.add.rectangle(
+                    this.gridX + cell.x * this.CELL_SIZE + (this.CELL_SIZE / 2),
+                    this.gridY + cell.y * this.CELL_SIZE + (this.CELL_SIZE / 2),
+                    this.CELL_SIZE,
+                    this.CELL_SIZE,
+                    shape.color
+                );
+                block.setStrokeStyle(1, 0x000000, 0.5);
+                // Rectangles default to a 0.5, 0.5 origin, so positioning them
+                // at the center of the grid cell is correct.
 
                 this.placedBlocksMatrix[cell.y][cell.x] = block;
             });

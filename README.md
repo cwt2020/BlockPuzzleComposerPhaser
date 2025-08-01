@@ -60,7 +60,25 @@ To run this project locally, follow these steps:
 
 3.  **Run the development server:**
     ```bash
-    npm run start
+    npm run dev
     ```
 
 Now, open your web browser and navigate to the local server address provided (usually `http://localhost:8080` or similar).
+
+---
+
+## 🌐 Deployment
+
+This project is configured for easy deployment to GitHub Pages.
+
+1.  **Configure `vite.config.ts`:** Open `vite.config.ts` and ensure the `base` property matches your GitHub repository name (e.g., `/your-repo-name/`).
+
+2.  **Run the deploy script:**
+    ```bash
+    npm run deploy
+    ```
+    This command builds the project and uses the `gh-pages` package to automatically create (or update) a `gh-pages` branch in your repository with the contents of the `dist` folder.
+
+3.  **Enable GitHub Pages:** In your GitHub repository settings, navigate to the "Pages" section. Set the source to "Deploy from a branch" and select the `gh-pages` branch with the `/ (root)` folder.
+
+After a minute or two, your game will be live at the URL provided by GitHub Pages!
