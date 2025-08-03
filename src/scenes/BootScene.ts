@@ -25,13 +25,5 @@ export default class BootScene extends Phaser.Scene {
         this.scene.launch('UIScene');
     }
 
-    private resumeGame(): void {
-        if (this.scene.isPaused('MainScene')) {
-            this.scene.resume('MainScene');
-            this.scene.resume('UIScene');
-        } else if (this.scene.isPaused('BuildScene')) {
-            this.scene.resume('BuildScene');
-            this.scene.resume('UIScene');
-        }
-    }
+    
 }
