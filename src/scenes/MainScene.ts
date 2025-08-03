@@ -281,6 +281,8 @@ export default class MainScene extends Phaser.Scene {
 
     private endPhase(): void {
         console.log("Phase complete. Returning to BuildScene.");
+        // Save the current grid state for the hint feature
+        this.game.registry.set('mainGridMatrix', this.mainGridMatrix);
         // Restart the build scene to complete the loop
         this.scene.switch('BuildScene');
     }
@@ -317,10 +319,21 @@ export default class MainScene extends Phaser.Scene {
         }).setOrigin(0.5).setDepth(101).setInteractive({ useHandCursor: true });
 
         restartBtn.on('pointerdown', () => {
+            // Explicitly reset the score and notify the UI Scene before restarting.
+            this.score = 0;
+            this.game.events.emit('updateScore', this.score);
+
+            // Clear the main grid for the hint
+            const GRID_WIDTH = 11;
+            const GRID_HEIGHT = 11;
+            const emptyGrid = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(0));
+            this.game.registry.set('mainGridMatrix', emptyGrid);
+
             // Restart the BuildScene to ensure it's in a fresh state.
             this.scene.get('BuildScene').scene.restart();
-            // Then, switch to it. This will shut down the current MainScene, hiding it.
-            this.scene.switch('BuildScene');
+            // Use `start` to shut down the current MainScene completely, destroying the
+            // game over screen and ensuring a fresh start when it's next launched.
+            this.scene.start('BuildScene');
         });
     }
 

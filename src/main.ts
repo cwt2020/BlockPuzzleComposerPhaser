@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import MainScene from './scenes/MainScene'; // Assuming you have a MainScene
+import './style.css';import MainScene from './scenes/MainScene'; // Assuming you have a MainScene
 import BuildScene from './scenes/BuildScene';
 import UIScene from './scenes/UIScene';
 import BootScene from './scenes/BootScene';

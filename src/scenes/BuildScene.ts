@@ -9,6 +9,7 @@ export default class BuildScene extends Phaser.Scene {
     private sourceShapes: Shape[] = [];
     private shapeFactory!: ShapeFactory;
     private previewGraphics!: Phaser.GameObjects.Graphics;
+    private hintPreviewGraphics!: Phaser.GameObjects.Graphics;
 
     // Grid properties
     private readonly GRID_WIDTH = 7;
@@ -39,7 +40,9 @@ export default class BuildScene extends Phaser.Scene {
         this.shapeFactory = new ShapeFactory();
         this.initBuildGrid();
         this.previewGraphics = this.add.graphics(); // Create preview layer on top of the grid
+        this.hintPreviewGraphics = this.add.graphics().setDepth(10); // For hint preview
         this.generateSourceShapes();
+        this.createHintButton();
         this.add.text(this.cameras.main.centerX, 80, 'Compose Your Shape', {
             fontSize: '56px', color: '#ffffff'
         }).setOrigin(0.5);
@@ -172,6 +175,51 @@ export default class BuildScene extends Phaser.Scene {
             this.scene.switch('MainScene');
         } else {
             this.scene.start('MainScene', { superShapeData: superShapeData });
+        }
+    }
+
+    private createHintButton(): void {
+        const hintButton = this.add.text(this.cameras.main.width - 100, 60, 'Hint', {
+            fontSize: '48px', color: '#ffffff', backgroundColor: '#0000ff', padding: { x: 15, y: 10 }
+        }).setOrigin(1, 0.5).setInteractive();
+
+        hintButton.on('pointerdown', () => {
+            this.showHintPreview(true);
+        });
+
+        hintButton.on('pointerup', () => {
+            this.showHintPreview(false);
+        });
+
+        hintButton.on('pointerout', () => {
+            this.showHintPreview(false);
+        });
+    }
+
+    private showHintPreview(visible: boolean): void {
+        this.hintPreviewGraphics.clear();
+        if (!visible) return;
+
+        const mainGridMatrix = this.game.registry.get('mainGridMatrix');
+        if (!mainGridMatrix) return;
+
+        const PREVIEW_CELL_SIZE = 20;
+        const PREVIEW_GRID_WIDTH = 11;
+        const PREVIEW_GRID_HEIGHT = 11;
+        const previewX = this.cameras.main.width - (PREVIEW_GRID_WIDTH * PREVIEW_CELL_SIZE) - 20;
+        const previewY = 120;
+
+        // Draw the preview grid background
+        this.hintPreviewGraphics.fillStyle(0x000000, 0.7);
+        this.hintPreviewGraphics.fillRect(previewX - 10, previewY - 10, (PREVIEW_GRID_WIDTH * PREVIEW_CELL_SIZE) + 20, (PREVIEW_GRID_HEIGHT * PREVIEW_CELL_SIZE) + 20);
+
+        // Draw the grid cells
+        for (let r = 0; r < PREVIEW_GRID_HEIGHT; r++) {
+            for (let c = 0; c < PREVIEW_GRID_WIDTH; c++) {
+                const color = mainGridMatrix[r][c] === 1 ? 0xffffff : 0x555555;
+                this.hintPreviewGraphics.fillStyle(color, 0.9);
+                this.hintPreviewGraphics.fillRect(previewX + c * PREVIEW_CELL_SIZE, previewY + r * PREVIEW_CELL_SIZE, PREVIEW_CELL_SIZE - 1, PREVIEW_CELL_SIZE - 1);
+            }
         }
     }
 }
