@@ -11,5 +11,12 @@ export default defineConfig({
         // This is the directory where the build output will be placed.
         // Default is 'dist', which is fine.
         outDir: 'dist',
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    phaser: ['phaser']
+                }
+            }
+        }
     }
 });

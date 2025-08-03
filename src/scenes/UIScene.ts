@@ -10,7 +10,7 @@ export default class UIScene extends Phaser.Scene {
     
     create() {
         // --- Score Display ---
-        this.scoreText = this.add.text(20, 20, 'Score: 0', {
+        this.scoreText = this.add.text(20, 40, 'Score: 0', {
             fontSize: '48px',
             color: '#ffffff',
             fontStyle: 'bold'

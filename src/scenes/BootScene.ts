@@ -21,8 +21,7 @@ export default class BootScene extends Phaser.Scene {
         const emptyGrid = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(0));
         this.game.registry.set('mainGridMatrix', emptyGrid);
 
-        this.scene.start('BuildScene');
-        this.scene.launch('UIScene');
+        this.scene.start('StartScene');
     }
 
     

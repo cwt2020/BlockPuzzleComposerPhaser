@@ -43,7 +43,7 @@ export default class BuildScene extends Phaser.Scene {
         this.hintPreviewGraphics = this.add.graphics().setDepth(10); // For hint preview
         this.generateSourceShapes();
         this.createHintButton();
-        this.add.text(this.cameras.main.centerX, 80, 'Compose Your Shape', {
+        this.add.text(this.cameras.main.centerX, 110, 'Compose Your Shape', {
             fontSize: '56px', color: '#ffffff'
         }).setOrigin(0.5);
     }
@@ -179,9 +179,9 @@ export default class BuildScene extends Phaser.Scene {
     }
 
     private createHintButton(): void {
-        const hintButton = this.add.text(this.cameras.main.width - 100, 60, 'Hint', {
-            fontSize: '48px', color: '#ffffff', backgroundColor: '#0000ff', padding: { x: 15, y: 10 }
-        }).setOrigin(1, 0.5).setInteractive();
+        const hintButton = this.add.text(460, 1355, 'HINT', {
+            fontSize: '48px', color: '#ffffff', backgroundColor: '#0000ff', padding: { x: 40, y: 20 }
+        }).setInteractive();
 
         hintButton.on('pointerdown', () => {
             this.showHintPreview(true);
@@ -203,11 +203,11 @@ export default class BuildScene extends Phaser.Scene {
         const mainGridMatrix = this.game.registry.get('mainGridMatrix');
         if (!mainGridMatrix) return;
 
-        const PREVIEW_CELL_SIZE = 20;
+        const PREVIEW_CELL_SIZE = 51;
         const PREVIEW_GRID_WIDTH = 11;
         const PREVIEW_GRID_HEIGHT = 11;
-        const previewX = this.cameras.main.width - (PREVIEW_GRID_WIDTH * PREVIEW_CELL_SIZE) - 20;
-        const previewY = 120;
+        const previewX = 259;
+        const previewY = 199;
 
         // Draw the preview grid background
         this.hintPreviewGraphics.fillStyle(0x000000, 0.7);

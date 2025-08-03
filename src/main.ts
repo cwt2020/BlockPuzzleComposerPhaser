@@ -3,6 +3,7 @@ import './style.css';import MainScene from './scenes/MainScene'; // Assuming you
 import BuildScene from './scenes/BuildScene';
 import UIScene from './scenes/UIScene';
 import BootScene from './scenes/BootScene';
+import StartScene from './scenes/StartScene';
 
 /**
  * The main configuration for the Phaser game instance.
@@ -21,6 +22,7 @@ const config: Phaser.Types.Core.GameConfig = {
     // --- SCENE CONFIGURATION ---
     scene: [
         BootScene,
+        StartScene,
         MainScene,
         UIScene,
         BuildScene

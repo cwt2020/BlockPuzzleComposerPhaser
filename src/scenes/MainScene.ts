@@ -42,7 +42,7 @@ export default class MainScene extends Phaser.Scene {
 
     private initMainGrid(): void {
         this.gridX = (this.cameras.main.width - (this.GRID_WIDTH * this.CELL_SIZE)) / 2;
-        this.gridY = 120;
+        this.gridY = (this.cameras.main.height - (this.GRID_HEIGHT * this.CELL_SIZE))/5;
 
         // The Grid object is purely visual. We create it and it adds itself to the scene.
         new Grid({
@@ -119,13 +119,15 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private createControlButtons(): void {
-        // Position buttons below the shape's starting area
-        const buttonY = this.activeShape.startY + 300; 
+        const buttonY = this.cameras.main.height - 150; // Position 150px from the bottom
         const buttonStyle = { fontSize: '42px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 22, y: 8 } };
         const centerX = this.cameras.main.width / 2;
 
+        const spacing = 100; // Spacing between button centers
+        const startX = centerX - spacing; // Center the group of 3 buttons
+
         // Rotate CW Button
-        const rotateCWBtn = this.add.text(centerX - 180, buttonY, '↷', buttonStyle)
+        const rotateCWBtn = this.add.text(startX, buttonY, '↷', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
@@ -145,7 +147,7 @@ export default class MainScene extends Phaser.Scene {
             .on('pointerup', () => flipBtn.setScale(1));
 
         // Rotate CCW Button
-        const rotateCCWBtn = this.add.text(centerX + 180, buttonY, '↶', buttonStyle)
+        const rotateCCWBtn = this.add.text(centerX + spacing, buttonY, '↶', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
