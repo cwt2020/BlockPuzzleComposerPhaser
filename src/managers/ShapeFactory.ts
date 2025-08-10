@@ -8,7 +8,7 @@ export default class ShapeFactory {
      * @param gridSize The size of the generation grid (e.g., 3 for 3x3).
      * @returns A trimmed 2D number array representing the shape.
      */
-    public generateShapeMatrix(minCells: number = 2, maxCells: number = 5, gridSize: number = 3): number[][] {
+    public generateShapeMatrix(minCells: number = 3, maxCells: number = 5, gridSize: number = 3): number[][] {
         const grid: number[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
         const numCells = Phaser.Math.Between(minCells, maxCells);
         let placedCells = 0;
@@ -28,14 +28,26 @@ export default class ShapeFactory {
             // Pick a random active cell to grow from
             const currentCell = Phaser.Math.RND.pick(activeCells);
 
-            // Find valid, unoccupied neighbors
+            // Find valid, unoccupied neighbors that only touch the shape at one edge
             const neighbors = directions
                 .map(dir => ({ r: currentCell.r + dir[0], c: currentCell.c + dir[1] }))
-                .filter(n =>
-                    n.r >= 0 && n.r < gridSize &&
-                    n.c >= 0 && n.c < gridSize &&
-                    grid[n.r][n.c] === 0
-                );
+                .filter(n => {
+                    // Basic bounds and occupation check
+                    if (n.r < 0 || n.r >= gridSize || n.c < 0 || n.c >= gridSize || grid[n.r][n.c] !== 0) {
+                        return false;
+                    }
+
+                    // Check for contiguity rule (must touch exactly one existing cell)
+                    let occupiedNeighbors = 0;
+                    for (const dir of directions) {
+                        const checkR = n.r + dir[0];
+                        const checkC = n.c + dir[1];
+                        if (checkR >= 0 && checkR < gridSize && checkC >= 0 && checkC < gridSize && grid[checkR][checkC] === 1) {
+                            occupiedNeighbors++;
+                        }
+                    }
+                    return occupiedNeighbors === 1;
+                });
 
             if (neighbors.length > 0) {
                 const nextCell = Phaser.Math.RND.pick(neighbors);
@@ -43,7 +55,7 @@ export default class ShapeFactory {
                 activeCells.push(nextCell);
                 placedCells++;
             } else {
-                // No more neighbors from this cell, remove it from active consideration
+                // No more valid neighbors from this cell, remove it from active consideration
                 activeCells.splice(activeCells.indexOf(currentCell), 1);
             }
         }

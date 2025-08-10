@@ -20,6 +20,7 @@ export default class BootScene extends Phaser.Scene {
         const GRID_HEIGHT = 11;
         const emptyGrid = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(0));
         this.game.registry.set('mainGridMatrix', emptyGrid);
+        this.game.registry.set('score', 0);
 
         this.scene.start('StartScene');
     }

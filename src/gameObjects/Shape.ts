@@ -19,6 +19,7 @@ export default class Shape extends Phaser.GameObjects.Container {
     public isPlaced: boolean = false;
     public startX: number;
     public startY: number;
+    public hasBeenReduced: boolean = false;
 
     constructor(config: IShapeConfig) {
         super(config.scene, config.x, config.y);
@@ -165,6 +166,21 @@ export default class Shape extends Phaser.GameObjects.Container {
     public rotateCW(): void { this.transform(rotateMatrixCW); }
     public rotateCCW(): void { this.transform(rotateMatrixCCW); }
     public flip(): void { this.transform(flipMatrixHorizontal); }
+
+    public reduce(): void {
+        if (this.isPlaced || this.cellCount() <= 2 || this.hasBeenReduced) return;
+
+        const newMatrix = (this.scene as any).shapeFactory.generateShapeMatrix(2, this.cellCount() - 1, 3);
+        this.matrix = newMatrix;
+        this.hasBeenReduced = true;
+        this.drawShape();
+        this.updateSizeAndHitArea();
+        this.emit('transformed', this);
+    }
+
+    public cellCount(): number {
+        return this.matrix.reduce((acc, row) => acc + row.reduce((a, c) => a + c, 0), 0);
+    }
 
     /**
      * Gets the grid coordinates that this shape would occupy if its top-left corner were at the given grid cell.

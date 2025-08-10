@@ -251,6 +251,7 @@ export default class MainScene extends Phaser.Scene {
         const baseScore = 100;
         const comboBonus = 50;
         this.score += (baseScore * totalClears) + (comboBonus * (totalClears > 1 ? totalClears - 1 : 0));
+        this.game.registry.set('score', this.score);
         this.game.events.emit('updateScore', this.score);
 
         // --- Update Models and Visuals ---

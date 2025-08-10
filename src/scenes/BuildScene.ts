@@ -107,11 +107,80 @@ export default class BuildScene extends Phaser.Scene {
         const buttonStyle = { fontSize: '48px', color: '#ffffff', backgroundColor: '#555555', padding: { x: 22, y: 8 }, align: 'center' };
 
         // Rotate CCW Button (↶)
-        this.add.text(centerX + buttonHorizontalSpacing, y, '↶', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCCW());
+        this.add.text(centerX - buttonHorizontalSpacing, y, '↶', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCCW());
         // Rotate CW Button (↷)
-        this.add.text(centerX - buttonHorizontalSpacing, y, '↷', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCW());
+        this.add.text(centerX + buttonHorizontalSpacing, y, '↷', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.rotateCW());
         // Flip Button (⇔)
-        this.add.text(centerX , y, '↔', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.flip());
+        this.add.text(centerX , y, '⇔', buttonStyle).setOrigin(0.5).setInteractive().on('pointerdown', () => shape.flip());
+
+        // Reduce Button (-)
+        const reduceButton = this.add.text(centerX, y + 80, '-', buttonStyle).setOrigin(0.5).setInteractive();
+        reduceButton.on('pointerdown', () => {
+            const score = this.game.registry.get('score') || 0;
+            console.log(`Score: ${score}`);
+            if (score >= 10) {
+                this.showDialog('Cost: 10 points. Use?', true, () => {
+                    const currentScore = this.game.registry.get('score') || 0;
+                    this.game.registry.set('score', currentScore - 10);
+                    this.game.events.emit('updateScore', this.game.registry.get('score'));
+                    shape.reduce();
+                });
+            } else {
+                this.showDialog('Not enough points!', false);
+            }
+        });
+
+        const updateReduceButtonState = () => {
+            if (shape.cellCount() <= 2 || shape.hasBeenReduced) {
+                reduceButton.setAlpha(0.5).disableInteractive();
+            } else {
+                reduceButton.setAlpha(1).setInteractive();
+            }
+        };
+
+        shape.on('transformed', updateReduceButtonState);
+        updateReduceButtonState(); // Initial check
+    }
+
+    private showDialog(message: string, isConfirmation: boolean, onConfirm?: () => void): void {
+        const dialogWidth = 600;
+        const dialogHeight = 300;
+        const dialogX = this.cameras.main.centerX - dialogWidth / 2;
+        const dialogY = this.cameras.main.centerY - dialogHeight / 2;
+
+        const dialog = this.add.container(dialogX, dialogY).setDepth(100);
+
+        const background = this.add.graphics()
+            .fillStyle(0x000000, 0.8)
+            .fillRect(0, 0, dialogWidth, dialogHeight);
+
+        const text = this.add.text(dialogWidth / 2, 100, message, { fontSize: '48px', color: '#ffffff' }).setOrigin(0.5);
+
+        dialog.add([background, text]);
+
+        if (isConfirmation) {
+            const yesButton = this.add.text(dialogWidth / 2 - 100, 220, 'Yes', { fontSize: '48px', color: '#00ff00' }).setOrigin(0.5).setInteractive();
+            const noButton = this.add.text(dialogWidth / 2 + 100, 220, 'No', { fontSize: '48px', color: '#ff0000' }).setOrigin(0.5).setInteractive();
+            dialog.add([yesButton, noButton]);
+
+            yesButton.on('pointerdown', () => {
+                if (onConfirm) {
+                    onConfirm();
+                }
+                dialog.destroy();
+            });
+
+            noButton.on('pointerdown', () => {
+                dialog.destroy();
+            });
+        } else {
+            const okButton = this.add.text(dialogWidth / 2, 220, 'OK', { fontSize: '48px', color: '#00ff00' }).setOrigin(0.5).setInteractive();
+            dialog.add(okButton);
+
+            okButton.on('pointerdown', () => {
+                dialog.destroy();
+            });
+        }
     }
 
     private handleShapeDrop(shape: Shape): void {
@@ -179,7 +248,7 @@ export default class BuildScene extends Phaser.Scene {
     }
 
     private createHintButton(): void {
-        const hintButton = this.add.text(460, 1355, 'HINT', {
+        const hintButton = this.add.text(460, 1400, 'HINT', {
             fontSize: '48px', color: '#ffffff', backgroundColor: '#0000ff', padding: { x: 40, y: 20 }
         }).setInteractive();
 
